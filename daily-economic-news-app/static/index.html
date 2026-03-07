@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Economic News</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Daily Economic News</h1>
+        </header>
+
+        <main>
+            <div id="login-container">
+                <h2>Login</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit">Login</button>
+                    <p id="login-error" class="error-message"></p>
+                </form>
+                <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+            </div>
+
+            <div id="register-container" class="hidden">
+                <h2>Register</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="reg-username">Username:</label>
+                        <input type="text" id="reg-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">Email:</label>
+                        <input type="email" id="reg-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Password:</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    <button type="submit">Register</button>
+                    <p id="register-error" class="error-message"></p>
+                </form>
+                <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+            </div>
+
+            <div id="dashboard-container" class="hidden">
+                <div class="dashboard-header">
+                    <h2 id="welcome-message"></h2>
+                    <button id="logout-button">Logout</button>
+                </div>
+                
+                <div id="preferences-section">
+                    <h3>Your Preferences</h3>
+                    <form id="preferences-form">
+                        <div class="form-group">
+                            <label for="email-time">Daily Email Time (HH:MM):</label>
+                            <input type="time" id="email-time" required>
+                            <button type="submit">Save Time</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="stocks-section">
+                    <h3>Tracked Stocks</h3>
+                    <ul id="stocks-list"></ul>
+                    <form id="add-stock-form">
+                        <input type="text" id="stock-symbol" placeholder="e.g., AAPL" required>
+                        <button type="submit">Add Stock</button>
+                    </form>
+                </div>
+
+                <div id="currencies-section">
+                    <h3>Tracked Currencies</h3>
+                    <ul id="currencies-list"></ul>
+                    <form id="add-currency-form">
+                        <input type="text" id="currency-symbol" placeholder="e.g., USD/KRW" required>
+                        <button type="submit">Add Currency</button>
+                    </form>
+                </div>
+                
+                <div id="manual-send-section">
+                    <h3>Manual Trigger</h3>
+                    <button id="manual-send-button">Send Daily Email Now</button>
+                    <p id="manual-send-status"></p>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
