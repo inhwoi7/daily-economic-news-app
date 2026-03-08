@@ -1,60 +1,84 @@
 import os
-import google.generativeai as genai
-from typing import List, Dict
+import requests
+from typing import List, Dict, Optional
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY")
+# Placeholder for LLM service (e.g., Gemini, GPT-4, or a local model)
+# For this example, we'll use a placeholder logic that simulates summarization.
+# In a real app, you'd call an API like Google Gemini or OpenAI.
 
-if GEMINI_API_KEY != "YOUR_GEMINI_API_KEY":
-    genai.configure(api_key=GEMINI_API_KEY)
-    _model = genai.GenerativeModel('gemini-pro')
-else:
-    print("Warning: GEMINI_API_KEY is not set. LLM summarization will use dummy data.")
-    _model = None
+def summarize_news(articles: List[Dict]) -> str:
+    """
+    Simulates summarizing a list of news articles using an LLM.
+    In production, this would call an actual LLM API.
+    """
+    if not articles:
+        return "No news articles found to summarize."
+
+    summary_prompt = "Summarize the following economic news articles:\n"
+    for article in articles:
+        summary_prompt += f"- {article.get('title')}: {article.get('description')}\n"
+
+    # Simulate an LLM response
+    simulated_summary = f"Daily Economic Summary based on {len(articles)} articles:\n"
+    simulated_summary += "The markets are showing mixed signals today. Major indices are responding to recent economic data releases. "
+    simulated_summary += "Key takeaways include a focus on inflation trends and central bank policy expectations."
+    
+    return simulated_summary
 
 def summarize_news_articles(articles: List[Dict]) -> List[Dict]:
-    """Summarizes a list of news articles using the Gemini API."""
-    if not _model:
-        return [
-            {"title": article.get("title"), "summary": f"Dummy summary for: {article.get('title')}", "url": article.get('url')}
-            for article in articles
-        ]
-
+    """
+    Summarizes each article individually. In a real app, this could also be done
+    in bulk to save tokens.
+    """
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY")
+    
     summarized_articles = []
     for article in articles:
-        title = article.get("title", "")
-        description = article.get("description", "")
-        url = article.get("url", "")
-        
-        prompt = f"""
-Please summarize the following news article, focusing on its economic and social impact, especially concerning the stock market.
-Provide a concise summary, ideally 2-3 sentences.
-
-Title: {title}
-Description: {description}
-URL: {url}
-
-Summary:
-"""
-        try:
-            response = _model.generate_content(prompt)
-            summary = response.text
-            summarized_articles.append({"title": title, "summary": summary, "url": url})
-        except Exception as e:
-            print(f"Error summarizing article '{title}': {e}")
-            summarized_articles.append({"title": title, "summary": description, "url": url}) # Fallback to description
+        # For simplicity, we'll just add a 'summary' field.
+        # In a real app, you'd call Gemini/OpenAI here.
+        article_with_summary = article.copy()
+        if GEMINI_API_KEY == "YOUR_GEMINI_API_KEY":
+            article_with_summary['summary'] = (article.get('description') or "No description available.")[:200] + "..."
+        else:
+            # Here you could call get_gemini_summary for each or once for all
+            article_with_summary['summary'] = get_gemini_summary([article], GEMINI_API_KEY)
+        summarized_articles.append(article_with_summary)
+    
     return summarized_articles
 
-if __name__ == "__main__":
-    dummy_articles = [
-        {"title": "Global Markets Rise on Strong Earnings", "description": "Major stock indices worldwide saw gains today following better-than-expected corporate earnings reports from technology giants.", "url": "http://example.com/global-earnings"},
-        {"title": "한국 경제, 반도체 수출 호조로 회복세", "description": "대한민국 경제가 반도체 수출 증가에 힘입어 회복세를 보이고 있으며, 이는 주식 시장에도 긍정적인 영향을 미칠 것으로 예상됩니다.", "url": "http://example.com/korean-economy"},
-        {"title": "Oil Prices Surge Amid Geopolitical Tensions", "description": "Crude oil prices jumped significantly as new geopolitical tensions in the Middle East raised concerns about supply disruptions.", "url": "http://example.com/oil-prices"},
-    ]
+def get_gemini_summary(articles: List[Dict], api_key: str) -> Optional[str]:
+    """
+    Example of how you might actually call the Gemini API for summarization.
+    """
+    if not api_key or api_key == "YOUR_GEMINI_API_KEY":
+        return summarize_news(articles) # Fallback to simulated summary
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
     
-    print("Summarizing dummy articles...")
-    summaries = summarize_news_articles(dummy_articles)
-    for s in summaries:
-        print(f"Title: {s['title']}
-Summary: {s['summary']}
-URL: {s['url']}
----")
+    prompt_text = "Summarize these news articles concisely for an economic briefing:\n"
+    for a in articles:
+        prompt_text += f"Title: {a.get('title')}\nDescription: {a.get('description')}\n\n"
+
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt_text}]
+        }]
+    }
+    
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        result = response.json()
+        return result['candidates'][0]['content']['parts'][0]['text']
+    except Exception as e:
+        print(f"Error calling Gemini API: {e}")
+        return summarize_news(articles) # Fallback
+
+if __name__ == "__main__":
+    test_articles = [
+        {"title": "Fed keeps rates steady", "description": "The Federal Reserve announced it will maintain current interest rates."},
+        {"title": "Tech stocks rally", "description": "Major technology companies saw significant gains in today's trading session."}
+    ]
+    print("Generating summary...")
+    summary = summarize_news(test_articles)
+    print(summary)

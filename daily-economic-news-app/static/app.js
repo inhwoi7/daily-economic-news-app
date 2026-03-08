@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currenciesList: document.getElementById('currencies-list'),
         logoutButton: document.getElementById('logout-button'),
         manualSendButton: document.getElementById('manual-send-button'),
+        previewEmailButton: document.getElementById('preview-email-button'),
         welcomeMessage: document.getElementById('welcome-message'),
         emailTimeInput: document.getElementById('email-time'),
         loginError: document.getElementById('login-error'),
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.addStockForm.addEventListener('submit', this.handleAddStock.bind(this));
             this.addCurrencyForm.addEventListener('submit', this.handleAddCurrency.bind(this));
             this.manualSendButton.addEventListener('click', this.handleManualSend.bind(this));
+            this.previewEmailButton.addEventListener('click', this.handlePreviewEmail.bind(this));
             document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); this.showRegister(); });
             document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); this.showLogin(); });
         },
@@ -195,6 +197,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.manualSendStatus.textContent = response.message;
             } catch (error) {
                 this.manualSendStatus.textContent = `Error: ${error.message}`;
+            }
+        },
+
+        async handlePreviewEmail(){
+            try {
+                const response = await fetch('/preview-email', {
+                    headers: { 'Authorization': `Bearer ${this.token}` }
+                });
+                if (!response.ok) throw new Error('Failed to fetch preview');
+                const html = await response.text();
+                const previewWindow = window.open('', '_blank');
+                previewWindow.document.write(html);
+                previewWindow.document.close();
+            } catch (error) {
+                alert(`Error: ${error.message}`);
             }
         },
 

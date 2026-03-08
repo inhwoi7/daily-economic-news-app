@@ -33,10 +33,8 @@ def fetch_global_news(query: str = "economy stock market", language: str = "en",
 def fetch_korean_news(query: str = "경제 주식", page_size: int = 10) -> List[Dict]:
     """
     Placeholder function for fetching South Korean news.
-    In a real application, this would integrate with a specific Korean news API
-    or a carefully maintained web scraper.
     """
-    print("Warning: Using dummy data for Korean news. Implement a real API or scraper for production.")
+    print("Warning: Using dummy data for Korean news.")
     return [
         {"title": "더미 한국 뉴스 1", "description": "한국 경제 관련 더미 뉴스입니다.", "url": "http://example.com/korean1"},
         {"title": "더미 한국 뉴스 2", "description": "한국 주식 시장 관련 더미 뉴스입니다.", "url": "http://example.com/korean2"},
@@ -46,17 +44,15 @@ if __name__ == "__main__":
     print("Fetching global news...")
     global_articles = fetch_global_news()
     for article in global_articles:
-        print(f"Title: {article['title']}
-Description: {article['description']}
-URL: {article['url']}
----")
+        print(f"Title: {article['title']}")
+        print(f"Description: {article['description']}")
+        print(f"URL: {article['url']}")
+        print("---")
 
-    print("
-Fetching Korean news (dummy data)...")
+    print("\nFetching Korean news (dummy data)...")
     korean_articles = fetch_korean_news()
     for article in korean_articles:
-        print(f"Title: {article['title']}
-Description: {article['description']}
-URL: {article['url']}
----")
-
+        print(f"Title: {article['title']}")
+        print(f"Description: {article['description']}")
+        print(f"URL: {article['url']}")
+        print("---")

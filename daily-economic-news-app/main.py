@@ -9,11 +9,15 @@ from datetime import timedelta, datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
 import pytz
+import os
+from pathlib import Path
 
 from database import SessionLocal, engine, Base
 import models, auth
 import email_builder
 import send_email
+
+BASE_DIR = Path(__file__).parent
 
 # Configure logging for APScheduler
 logging.basicConfig(level=logging.INFO)
@@ -108,7 +112,7 @@ app = FastAPI()
 scheduler = BackgroundScheduler()
 
 # Mount the static directory to serve frontend files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 # Dependency to get the database session
 def get_db():
@@ -341,6 +345,13 @@ def delete_currency(currency_id: int, current_user: Annotated[models.User, Depen
     db.commit()
     return {"message": "Currency deleted successfully"}
 
+from fastapi.responses import HTMLResponse
+
+@app.get("/preview-email", response_class=HTMLResponse)
+def preview_daily_email(current_user: Annotated[models.User, Depends(get_current_user)], db: Session = Depends(get_db)):
+    email_html_content = email_builder.build_daily_email_content(current_user.id, current_user.email, db)
+    return email_html_content
+
 @app.post("/send-daily-email")
 async def send_daily_email_endpoint(current_user: Annotated[models.User, Depends(get_current_user)], db: Session = Depends(get_db)):
     if not current_user.email:
@@ -369,6 +380,10 @@ async def send_daily_email_endpoint(current_user: Annotated[models.User, Depends
 
 @app.get("/")
 def read_root():
-    return FileResponse('static/index.html')
+    return FileResponse(str(BASE_DIR / 'static' / 'index.html'))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
 
